@@ -23,7 +23,9 @@ import org.apache.shenyu.common.concurrent.ShenyuThreadPoolExecutor;
 import org.apache.shenyu.common.config.ShenyuConfig;
 import org.apache.shenyu.common.constant.Constants;
 import org.apache.shenyu.common.utils.ThreadUtils;
+import org.apache.shenyu.plugin.api.utils.SpringBeanUtils;
 import org.apache.shenyu.plugin.logging.common.client.LogConsumeClient;
+import org.apache.shenyu.plugin.logging.common.constant.GenericLoggingConstant;
 import org.apache.shenyu.plugin.logging.common.entity.ShenyuRequestLog;
 import org.apache.shenyu.plugin.logging.common.utils.LogCollectConfigUtils;
 import org.slf4j.Logger;
@@ -53,12 +55,13 @@ public abstract class AbstractLogCollector implements LogCollector {
 
     private final AtomicBoolean started = new AtomicBoolean(true);
 
-    private final ShenyuConfig config = new ShenyuConfig();
+    private ShenyuConfig config;
 
     @Override
     public void start() {
         bufferSize = LogCollectConfigUtils.getGenericGlobalConfig().getBufferQueueSize();
         bufferQueue = new LinkedBlockingDeque<>(bufferSize);
+        config = SpringBeanUtils.getInstance().getBean(ShenyuConfig.class);
         final ShenyuConfig.SharedPool sharedPool = config.getSharedPool();
         ShenyuThreadPoolExecutor threadExecutor = new ShenyuThreadPoolExecutor(sharedPool.getCorePoolSize(),
                 sharedPool.getMaximumPoolSize(), sharedPool.getKeepAliveTime(), TimeUnit.MILLISECONDS,
